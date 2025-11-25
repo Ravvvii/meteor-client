@@ -8,7 +8,8 @@ on:
   push:
     branches:
       - master
-  # Ini yang membuat workflow bisa di-run manual
+      - command-api-v2  # <-- Branch Anda ditambahkan di sini
+  # Tetap saya pasang ini agar nanti bisa di-run manual juga
   workflow_dispatch:
 
 jobs:
