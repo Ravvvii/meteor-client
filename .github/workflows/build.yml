@@ -8,6 +8,8 @@ on:
   push:
     branches:
       - master
+  # Ini yang membuat workflow bisa di-run manual
+  workflow_dispatch:
 
 jobs:
   build:
@@ -43,33 +45,10 @@ jobs:
       - name: Build
         run: ./gradlew build -Pcommit=${{ github.sha }} -Pbuild_number=${{ steps.build-number.outputs.number }}
 
-      # --- BAGIAN YANG DITAMBAHKAN ---
+      # Step Artifact (disimpan 1 hari)
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-${{ steps.build-number.outputs.number }}
           path: build/libs/
           retention-days: 1
-      # ------------------------------
-
-      - name: Webhook Failure
-        if: ${{ failure() }}
-        run: |
-          cd .github/builds
-          npm run webhook -- ${{ steps.build-number.outputs.number }} ${{ github.ref_name }} https://api.github.com/repos/MeteorDevelopment/meteor-client/compare/${{ github.event.before }}...${{ github.event.after }} false
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-
-      - name: Publish
-        run: ./gradlew publish -Pcommit=${{ github.sha }} -Pbuild_number=${{ steps.build-number.outputs.number }}
-        env:
-          MAVEN_METEOR_ALIAS: ${{ secrets.MAVEN_METEOR_ALIAS }}
-          MAVEN_METEOR_TOKEN: ${{ secrets.MAVEN_METEOR_TOKEN }}
-
-      - name: Discord webhook
-        run: |
-          cd .github/builds
-          npm run webhook -- ${{ steps.build-number.outputs.number }} ${{ github.ref_name }} https://api.github.com/repos/MeteorDevelopment/meteor-client/compare/${{ github.event.before }}...${{ github.event.after }} true
-        env:
-          SERVER_TOKEN: ${{ secrets.SERVER_TOKEN }}
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
