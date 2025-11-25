@@ -43,6 +43,15 @@ jobs:
       - name: Build
         run: ./gradlew build -Pcommit=${{ github.sha }} -Pbuild_number=${{ steps.build-number.outputs.number }}
 
+      # --- BAGIAN YANG DITAMBAHKAN ---
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ steps.build-number.outputs.number }}
+          path: build/libs/
+          retention-days: 1
+      # ------------------------------
+
       - name: Webhook Failure
         if: ${{ failure() }}
         run: |
